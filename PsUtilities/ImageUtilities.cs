@@ -35,7 +35,7 @@ namespace PsUtilities
         public string OptimizeHere(string inputfile, int finalsize = 1024, float hdpi = 0, float vdpi = 0, string outputpath = "")
         {
             if (string.IsNullOrEmpty(outputpath))
-                outputpath = Path.GetDirectoryName(inputfile) + Path.GetFileNameWithoutExtension(inputfile) + "_Optimized" + Path.GetExtension(inputfile);
+                outputpath = Path.GetDirectoryName(inputfile) + "\\" + Path.GetFileNameWithoutExtension(inputfile) + "_Optimized" + Path.GetExtension(inputfile);
 
             GetOptimizedImage(inputfile, finalsize, hdpi, vdpi).Save(outputpath);
             return outputpath;
@@ -72,7 +72,7 @@ namespace PsUtilities
         public string RotateHere(string inputfile, float rotation, string outputpath = "")
         {
             if (string.IsNullOrEmpty(outputpath))
-                outputpath = Path.GetDirectoryName(inputfile) + Path.GetFileNameWithoutExtension(inputfile) + "_Rotated" + Path.GetExtension(inputfile);
+                outputpath = Path.GetDirectoryName(inputfile) + "\\" + Path.GetFileNameWithoutExtension(inputfile) + "_Rotated" + Path.GetExtension(inputfile);
 
             Rotate(inputfile, rotation).Save(outputpath);
             return outputpath;
