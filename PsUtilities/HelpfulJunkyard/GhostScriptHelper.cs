@@ -10,18 +10,18 @@ using System.Reflection;
 namespace PsUtilities
 {
     public class GhostScriptHelper
-    {                                
+    {
         public static GhostscriptVersionInfo GetGhostscriptVersion()
         {
             var dllPath = Path.Combine(GetBinPath(), Environment.Is64BitProcess ? "gsdll64.dll" : "gsdll32.dll");
-            var dllResourcePath = Path.Combine(GetBinPath(),"Resources", Environment.Is64BitProcess ? "gsdll64.dll" : "gsdll32.dll");
+            var dllResourcePath = Path.Combine(GetBinPath(), "Resources", Environment.Is64BitProcess ? "gsdll64.dll" : "gsdll32.dll");
 
             if (File.Exists(dllPath))
             {
                 // use DLL in bin folder
                 return new GhostscriptVersionInfo(new System.Version(0, 0, 0), dllPath, string.Empty, GhostscriptLicense.GPL | GhostscriptLicense.AFPL);
             }
-            else if(File.Exists(dllResourcePath))
+            else if (File.Exists(dllResourcePath))
             {
                 // use DLL in Resources folder
                 return new GhostscriptVersionInfo(new System.Version(0, 0, 0), dllResourcePath, string.Empty, GhostscriptLicense.GPL | GhostscriptLicense.AFPL);
@@ -105,7 +105,7 @@ namespace PsUtilities
                 if (File.Exists(outputfilename))
                     File.Delete(outputfilename);
 
-                img.OutputPath = outputfilename;                
+                img.OutputPath = outputfilename;
                 img.Process(_lastInstalledVersion, false, null);
 
                 Console.WriteLine("Generated {0}", Path.GetFileName(outputfilename));

@@ -1,19 +1,51 @@
-﻿using iTextSharp.text;
-using iTextSharp.text.pdf;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using XpsLibrary;
 using Image = System.Drawing.Image;
 
 namespace PsUtilities
 {
-    public class PdfUtilities
+    public class PdfUtilities : PdfBase
     {
-        public bool IsXFA(string inputfile)
+        public string FlattenPdf(string pdffilepath, bool isTemp = false)
         {
-            return new XfaForm(new PdfReader(inputfile)).XfaPresent;
+            string tempflattenedpdf = base.FlattenPdf(pdffilepath);
+            string flattenedpdf = Path.GetDirectoryName(pdffilepath) + "\\" + Path.GetFileNameWithoutExtension(pdffilepath) + "_flat.pdf";
+
+            if (isTemp)
+                flattenedpdf = tempflattenedpdf;
+            else
+                File.Move(tempflattenedpdf, flattenedpdf);
+
+            return flattenedpdf;
+        }
+
+        public List<Image> ExtractImageObject(string inputfilename)
+        {
+            if (IsXFA(inputfilename))
+                inputfilename = FlattenPdf(inputfilename, isTemp: true);
+
+            return ExtractImage(inputfilename);
+        }
+
+        public List<string> ExtractImageAsFiles(string inputfilename, bool isTemp = false)
+        {
+            if (IsXFA(inputfilename))
+                inputfilename = FlattenPdf(inputfilename, isTemp: true);
+
+            List<Image> images = ExtractImage(inputfilename);
+            List<string> imagefiles = new List<string>();
+            string imagefilepathformat = (isTemp ? Path.GetTempPath() : Path.GetDirectoryName(inputfilename)) + "\\" + Path.GetFileNameWithoutExtension(inputfilename) + "_image_{0}.jpg";
+
+            int count = 1;
+
+            images.ForEach(img =>
+            {
+                imagefiles.Add(string.Format(imagefilepathformat, count));
+                img.Save(string.Format(imagefilepathformat, count++));
+            });
+
+            return imagefiles;
         }
 
         public void PrintPdfToXps(string inputfilename)
@@ -24,164 +56,80 @@ namespace PsUtilities
             process.WaitForExit();
         }
 
-        public string MergePdfTemp(List<string> inputfiles)
+        public string MergeToPdf(List<string> inputfiles, bool isTemp = false)
         {
-            inputfiles.Sort();
-            string outputpath = Path.GetTempPath() + Path.GetFileNameWithoutExtension(inputfiles.First()) + ".pdf";
-
-            Document doc = null;
-            PdfSmartCopy pdf = null;
-            PdfReader.unethicalreading = true;
-
-            try
+            inputfiles.ForEach(pdffile =>
             {
-                var stream = new FileStream(outputpath, FileMode.Create);
-
-                doc = new Document();
-                pdf = new PdfSmartCopy(doc, stream);
-
-                doc.Open();
-
-                foreach (string file in inputfiles)
-                {
-                    pdf.AddDocument(new PdfReader(file));
-                }
-            }
-            catch (Exception)
-            {
-            }
-            finally
-            {
-                pdf?.Dispose();
-                doc?.Dispose();
-            }
-
-            return outputpath;
-        }
-
-        public string MergePdfHere(List<string> inputfiles)
-        {
-            string outputpath = Path.GetDirectoryName(inputfiles.First()) + "\\" + Path.GetFileNameWithoutExtension(inputfiles.First()) + "_merged.pdf";
-
-            File.Copy(MergePdfTemp(inputfiles), outputpath, true);
-
-            return outputpath;
-        }
-
-        public string ImageToPdfTemp(List<string> inputfiles)
-        {
-            string outputpath = Path.GetTempPath() + Path.GetFileNameWithoutExtension(inputfiles.First()) + ".pdf";
-
-            Document doc = null;
-            FileStream fs = null;
-            PdfWriter writer = null;
-
-            try
-            {
-                doc = new Document();
-                fs = new FileStream(outputpath, FileMode.Create, FileAccess.Write, FileShare.None);
-                writer = PdfWriter.GetInstance(doc, fs);
-
-                doc.Open();
-
-                inputfiles.Sort();
-                foreach (var imgf in inputfiles)
-                {
-                    iTextSharp.text.Image img = iTextSharp.text.Image.GetInstance(imgf);
-                    img.ScaleToFit(PageSize.A4.Width, PageSize.A4.Height);
-                    img.SetAbsolutePosition((PageSize.A4.Width - img.ScaledWidth) / 2, (PageSize.A4.Height - img.ScaledHeight) / 2);
-
-                    doc.NewPage();
-                    writer.DirectContent.AddImage(img);
-                }
-
-                inputfiles.ForEach(i => File.Delete(i));
-            }
-            catch (Exception)
-            {
-
-            }
-            finally
-            {
-                doc?.Dispose();
-                fs?.Dispose();
-                writer?.Dispose();
-            }
-
-            return outputpath;
-        }
-
-        public string ImageToPdfHere(List<string> inputfiles, string outputpath = "")
-        {
-            if (string.IsNullOrEmpty(outputpath))
-                outputpath = Path.GetDirectoryName(inputfiles.First()) + "\\" + Path.GetFileNameWithoutExtension(inputfiles.First()) + "_itp.pdf";
-
-            File.Copy(ImageToPdfTemp(inputfiles), outputpath, true);
-
-            return outputpath;
-        }
-
-        public List<Image> PdfToImage(string inputfilename)
-        {
-            if (IsXFA(inputfilename))
-                inputfilename = FlattenPdf(inputfilename, isTemp: true);
-
-            var imagefiles = new GhostScriptHelper().PdfToImage(inputfilename);
-            List<Image> optimizedimages = new List<Image>();
-            var imageutil = new ImageUtilities();
-
-            imagefiles.ForEach(f => optimizedimages.Add(imageutil.GetOptimizedImage(f)));
-
-            return optimizedimages;
-        }
-
-        public List<string> PdfToImageFilesTemp(string inputfilename)
-        {
-            if (IsXFA(inputfilename))
-                inputfilename = FlattenPdf(inputfilename, isTemp: true);
-
-            var imagefiles = new GhostScriptHelper().PdfToImage(inputfilename);
-            List<string> optimizedimagefiles = new List<string>();
-            var imageutil = new ImageUtilities();
-
-            imagefiles.ForEach(f => optimizedimagefiles.Add(imageutil.OptimizeToTemp(f)));
-
-            return optimizedimagefiles;
-        }
-
-        public List<string> PdfToImageFilesHere(string inputfilename)
-        {
-            var images = PdfToImageFilesTemp(inputfilename);
-            var outputdirectory = Path.GetDirectoryName(inputfilename);
-            var outputfilename = Path.GetFileNameWithoutExtension(inputfilename) + "_Image_{0}" + Path.GetExtension(images.First());
-
-            int imagecount = 1;
-            List<string> outimages = new List<string>();
-            images.ForEach(f =>
-            {
-                outimages.Add(outputdirectory + "\\" + string.Format(outputfilename, imagecount));
-                File.Copy(f, outputdirectory + "\\" + string.Format(outputfilename, imagecount++), true);
+                if (IsXFA(pdffile))
+                    pdffile = FlattenPdf(pdffile, isTemp: true);
             });
 
-            return outimages;
+            string tempmergedpdfpath = base.Merge(inputfiles);
+
+            if (isTemp)
+                return tempmergedpdfpath;
+
+            string outputpath = Path.GetDirectoryName(inputfiles.First()) + "\\" + Path.GetFileNameWithoutExtension(inputfiles.First()) + "_merged.pdf";
+
+            if (!FileUtilities.IsFileLocked(outputpath))
+            {
+                File.Delete(outputpath);
+                File.Move(tempmergedpdfpath, outputpath);
+            }
+
+            return outputpath;
         }
 
-        public string FlattenPdf(string inputfile, bool isTemp = false)
+        public string PrintToPdf(List<string> inputfiles, bool isTemp = false)
         {
-            var directoryname = (isTemp ? Path.GetTempPath() : Path.GetDirectoryName(inputfile));
+            string temppdfpath = base.PrintToPdf(inputfiles);
 
-            PrintPdfToXps(inputfile);
+            if (isTemp)
+                return temppdfpath;
 
-            //don't need xps when flatting pdf, expected output is pdf, so sending xps to temp
-            if (File.Exists(Path.GetTempPath() + "\\to.xps"))
-                File.Delete(Path.GetTempPath() + "\\to.xps");
-            File.Move(Path.GetDirectoryName(inputfile) + "\\to.xps", Path.GetTempPath() + "\\to.xps");
-            var xpspath = Path.GetTempPath() + "\\to.xps";
+            string outputpath = Path.GetDirectoryName(inputfiles.First()) + "\\" + Path.GetFileNameWithoutExtension(inputfiles.First()) + "_printed.pdf";
 
-            var imagefiles = new XpsUtilities().XpsToImage(xpspath, true);
+            if (!FileUtilities.IsFileLocked(outputpath))
+            {
+                File.Delete(outputpath);
+                File.Move(temppdfpath, outputpath);
+            }
 
-            var pdfoutputpath = directoryname + "\\" + Path.GetFileNameWithoutExtension(inputfile) + "_FLAT.pdf";
-            return ImageToPdfHere(imagefiles, pdfoutputpath);
+            return outputpath;
+        }
+
+        public List<string> Split(string inputfile, bool isTemp = false)
+        {
+            if (IsXFA(inputfile))
+                inputfile = FlattenPdf(inputfile, isTemp: true);
+
+            var tempsplitfiles = base.Split(inputfile);
+            List<string> splitfiles = new List<string>();
+
+            if (isTemp)
+                return tempsplitfiles;
+
+            string outputpath = Path.GetDirectoryName(inputfile) + "\\" + Path.GetFileNameWithoutExtension(inputfile) + "_page_{0}.pdf";
+
+            int count = 1;
+
+            tempsplitfiles.ForEach(img =>
+            {
+                splitfiles.Add(string.Format(outputpath, count));
+                File.Move(img, string.Format(outputpath, count++));
+            });
+
+            return splitfiles;
+        }
+
+        public IEnumerable<SearchResult> SearchPdf(string directory, string searchtext)
+        {
+            string[] pdffiles = Directory.GetFiles(directory, "*.pdf", SearchOption.AllDirectories);
+
+            foreach(SearchResult searchresult in base.NextSearchResult(pdffiles, searchtext))
+            {
+                yield return searchresult;
+            }
         }
     }
 }

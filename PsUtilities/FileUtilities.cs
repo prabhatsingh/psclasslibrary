@@ -1,0 +1,37 @@
+﻿using System.Collections.Generic;
+using System.IO;
+
+namespace PsUtilities
+{
+    class FileUtilities
+    {
+        public static List<string> filestodelete = new List<string>();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
+        public static bool IsFileLocked(string filepath)
+        {
+            try
+            {
+                if (!File.Exists(filepath))
+                    return false;
+
+                FileInfo file = new FileInfo(filepath);
+
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread                
+                return true;
+            }
+
+            //file is not locked
+            return false;
+        }
+    }
+}
