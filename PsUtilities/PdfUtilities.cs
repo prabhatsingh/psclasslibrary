@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using PsUtilities.BaseClasses;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Image = System.Drawing.Image;
@@ -80,6 +81,27 @@ namespace PsUtilities
             return outputpath;
         }
 
+        public string RotatePdf(string inputfile, float rotation, bool isTemp = false)
+        {
+            if (IsXFA(inputfile))
+                inputfile = FlattenPdf(inputfile, isTemp: true);
+
+            string temprotatedpdfpath = base.Rotate(inputfile, rotation);
+
+            if (isTemp)
+                return temprotatedpdfpath;
+
+            string outputpath = Path.GetDirectoryName(inputfile) + "\\" + Path.GetFileNameWithoutExtension(inputfile) + "_rotated_" + rotation.ToString() + ".pdf";
+
+            if (!FileUtilities.IsFileLocked(outputpath))
+            {
+                File.Delete(outputpath);
+                File.Move(temprotatedpdfpath, outputpath);
+            }
+
+            return outputpath;
+        }
+
         public string PrintToPdf(List<string> inputfiles, bool isTemp = false)
         {
             string temppdfpath = base.PrintToPdf(inputfiles);
@@ -126,7 +148,7 @@ namespace PsUtilities
         {
             string[] pdffiles = Directory.GetFiles(directory, "*.pdf", SearchOption.AllDirectories);
 
-            foreach(SearchResult searchresult in base.NextSearchResult(pdffiles, searchtext))
+            foreach (SearchResult searchresult in base.NextSearchResult(pdffiles, searchtext))
             {
                 yield return searchresult;
             }

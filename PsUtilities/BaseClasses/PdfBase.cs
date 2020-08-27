@@ -1,4 +1,5 @@
 ﻿using iTextSharp.text;
+using iTextSharp.text.exceptions;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 using System;
@@ -8,7 +9,7 @@ using System.Linq;
 using XpsLibrary;
 using Path = System.IO.Path;
 
-namespace PsUtilities
+namespace PsUtilities.BaseClasses
 {
     public class PdfBase
     {
@@ -88,6 +89,37 @@ namespace PsUtilities
             }
 
             return splittedpdf;
+        }
+
+        public string Rotate(string inputfile, float desiredRot)
+        {
+            string rotatedpdf = Path.GetTempPath() + "\\pdfrotated" + "_" + desiredRot.ToString() + DateTime.Now.ToString("_yyyy_MM_dd_HH_mm_ss") + ".pdf";
+
+            FileStream outStream = new FileStream(rotatedpdf, FileMode.Create);
+
+            PdfReader reader = new PdfReader(inputfile);
+            PdfStamper stamper = new PdfStamper(reader, outStream);
+
+            int pageCount = reader.NumberOfPages;
+
+            for (int n = 1; n <= pageCount; n++)
+            {
+                PdfDictionary pageDict = reader.GetPageN(n);
+
+                PdfNumber rotation = pageDict.GetAsNumber(PdfName.ROTATE);
+                float rotationrequired = desiredRot;
+                if (rotation != null)
+                {
+                    rotationrequired += rotation.IntValue;
+                    rotationrequired %= 360; // must be 0, 90, 180, or 270
+                }
+                pageDict.Put(PdfName.ROTATE, new PdfNumber(rotationrequired));
+            }
+
+            stamper.Close();
+            reader.Close();
+
+            return rotatedpdf;
         }
 
         public string PrintToPdf(List<string> imagefiles)
@@ -175,16 +207,27 @@ namespace PsUtilities
         {
             foreach (string pdffile in files)
             {
-                PdfReader pdfReader = new PdfReader(pdffile);
+                PdfReader pdfReader = null;
+                int numpages = 0;
+                try
+                {
+                    pdfReader = new PdfReader(pdffile);
+                    numpages = pdfReader.NumberOfPages;
+                }
+                catch(InvalidPdfException)
+                {
+                    continue;
+                }
 
-                for (int page = 1; page <= pdfReader.NumberOfPages; page++)
+                for (int page = 1; page <= numpages; page++)
                 {
                     ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
 
                     string currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
+                    string[] textlines = currentPageText.Split('\n');
                     if (currentPageText.Contains(searchText))
                     {
-                        yield return new SearchResult { filename = pdffile, pagenumber = page };
+                        yield return new SearchResult { filename = pdffile, pagenumber = page, results = textlines.Where(f => f.Contains(searchText)).ToArray() };
                     }
                 }
 
@@ -198,5 +241,6 @@ namespace PsUtilities
         public string filename;
         public FileInfo Fileinfo => new FileInfo(filename);
         public int pagenumber;
+        public string[] results;
     }
 }

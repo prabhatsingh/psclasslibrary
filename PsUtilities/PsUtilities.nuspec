@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>psutilities</id>
+    <version>1.0.1</version>
+    <title>Prabhats Utilities</title>
+    <authors>Prabhat Kumar Singh</authors>
+    <owners>Prabhat Kumar Singh</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/prabhatsingh/psclasslibrary</projectUrl>
+    <!--<iconUrl>http://icon_url_here_or_delete_this_line/</iconUrl>-->
+    <description>General utilities for tasks I do occassionaly, that takes too much time the usual way</description>
+    <releaseNotes>Initial Release</releaseNotes>
+    <copyright>Copyright 2020</copyright>
+    <tags>PDF Optimize Image Rotate PDF</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="System.ValueTuple" version="4.0.3.0"></dependency>
+      </group>
+    </dependencies>
+  </metadata>
+</package>
