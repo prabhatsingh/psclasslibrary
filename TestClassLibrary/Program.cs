@@ -14,7 +14,7 @@ namespace TestClassLibrary
             int rowcount = 0;
             string column1 = "";
             string column2 = "";
-            foreach (var result in new PdfUtilities().SearchPdf(@"C:\Users\pnppps\Downloads\", "Prabhat"))
+            foreach (var result in new PdfUtilities().SearchPdf(@"\\gwlanfs4\Griddata\LI Test\Load Status Reports\uat\", "System Exception at Pas Service Layer"))
             {                
                 if (rowcount == 0)
                 {
