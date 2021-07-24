@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using PsUtilities.Helpers;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PsUtilities
 {
-    class FileUtilities
+    public class FileUtilities
     {
         public static List<string> filestodelete = new List<string>();
 
@@ -24,14 +26,50 @@ namespace PsUtilities
             }
             catch (IOException)
             {
-                //the file is unavailable because it is:
-                //still being written to
-                //or being processed by another thread                
+                //the file is unavailable because it is still being written to
+                //or being processed by another thread
                 return true;
             }
 
             //file is not locked
             return false;
+        }
+
+        public class FileDetails
+        {
+            public FileDetails(string f)
+            {
+                Filepath = f;
+            }
+
+            public string Filename
+            {
+                get
+                {
+                    return Path.GetFileNameWithoutExtension(Filepath);
+                }
+            }
+
+            public string Filepath { get; set; }
+
+            public string Extension
+            {
+                get
+                {
+                    return Path.GetExtension(Filepath);
+                }
+            }
+
+            public FileType FType
+            {
+                get
+                {
+                    if (Extension.IsImage()) return FileType.IMAGE;
+                    if (Extension.IsPdf()) return FileType.PDF;
+                    if (Extension.IsXps()) return FileType.XPS;
+                    return FileType.UNSUPPORTED;
+                }
+            }
         }
     }
 }

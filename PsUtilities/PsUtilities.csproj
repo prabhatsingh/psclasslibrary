@@ -59,7 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClasses\ImageBase.cs" />
+    <Compile Include="ConsoleUtilities.cs" />
     <Compile Include="FileUtilities.cs" />
+    <Compile Include="Helpers\FileDefs.cs" />
     <Compile Include="Helpers\GhostScriptHelper.cs" />
     <Compile Include="Helpers\ConversionException.cs" />
     <Compile Include="Helpers\ImageDefs.cs" />
