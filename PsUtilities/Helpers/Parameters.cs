@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace XpsLibrary
+namespace PsUtilities.Helpers
 {
     public class Parameters
     {

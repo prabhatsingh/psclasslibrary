@@ -1,4 +1,4 @@
-﻿namespace XpsLibrary
+﻿namespace PsUtilities.Helpers
 {
     public enum ImageType
     {

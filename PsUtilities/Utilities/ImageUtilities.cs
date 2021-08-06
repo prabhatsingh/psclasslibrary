@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace PsUtilities
+namespace PsUtilities.Utilities
 {
     public class ImageUtilities : ImageBase
     {

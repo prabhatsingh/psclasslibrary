@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Image = System.Drawing.Image;
 
-namespace PsUtilities
+namespace PsUtilities.Utilities
 {
     public class PdfUtilities : PdfBase
     {
@@ -152,6 +152,26 @@ namespace PsUtilities
             {
                 yield return searchresult;
             }
+        }
+    
+        public string OptimizePdf(string inputfile, int finalsize = 1024, float hdpi = 0, float vdpi = 0, bool isTemp = false)
+        {
+            List<Image> pageimages = ExtractImageObject(inputfile);
+            
+            string temppdfpath = base.ImageToPdf(pageimages);
+
+            if (isTemp)
+                return temppdfpath;
+
+            string outputpath = Path.GetDirectoryName(inputfile) + "\\" + Path.GetFileNameWithoutExtension(inputfile) + "_optimized.pdf";
+
+            if (!FileUtilities.IsFileLocked(outputpath))
+            {
+                File.Delete(outputpath);
+                File.Move(temppdfpath, outputpath);
+            }
+
+            return outputpath;
         }
     }
 }

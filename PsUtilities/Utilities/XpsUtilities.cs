@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using PsUtilities.Helpers;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace XpsLibrary
+namespace PsUtilities.Utilities
 {
     public class XpsUtilities
     {
@@ -19,10 +20,10 @@ namespace XpsLibrary
                     Dpi = 300
                 });
 
-                int count = 1;
+                int count = 0;
                 images.ToList().ForEach(f =>
                 {
-                    var imgfilename = string.Format(outputpath, Path.GetFileNameWithoutExtension(inputfile), count++);
+                    var imgfilename = string.Format(outputpath, Path.GetFileNameWithoutExtension(inputfile), ++count);
                     imagefiles.Add(imgfilename);
                     f.Save(imgfilename);
                 });

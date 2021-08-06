@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace PsUtilities
+namespace PsUtilities.Helpers
 {
     public class GhostScriptHelper
     {

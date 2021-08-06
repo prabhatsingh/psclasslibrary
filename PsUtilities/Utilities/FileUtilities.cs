@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace PsUtilities
+namespace PsUtilities.Utilities
 {
     public class FileUtilities
     {

@@ -2,11 +2,12 @@
 using iTextSharp.text.exceptions;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
+using PsUtilities.Helpers;
+using PsUtilities.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using XpsLibrary;
 using Path = System.IO.Path;
 
 namespace PsUtilities.BaseClasses
@@ -141,7 +142,7 @@ namespace PsUtilities.BaseClasses
                 imagefiles.Sort();
                 foreach (var imgf in imagefiles)
                 {
-                    iTextSharp.text.Image img = iTextSharp.text.Image.GetInstance(imgf);
+                    Image img = iTextSharp.text.Image.GetInstance(imgf);
                     img.ScaleToFit(PageSize.A4.Width, PageSize.A4.Height);
                     img.SetAbsolutePosition((PageSize.A4.Width - img.ScaledWidth) / 2, (PageSize.A4.Height - img.ScaledHeight) / 2);
 
@@ -214,7 +215,7 @@ namespace PsUtilities.BaseClasses
                     pdfReader = new PdfReader(pdffile);
                     numpages = pdfReader.NumberOfPages;
                 }
-                catch(InvalidPdfException)
+                catch (InvalidPdfException)
                 {
                     continue;
                 }
@@ -234,13 +235,52 @@ namespace PsUtilities.BaseClasses
                 pdfReader.Close();
             }
         }
-    }
 
-    public class SearchResult
-    {
-        public string filename;
-        public FileInfo Fileinfo => new FileInfo(filename);
-        public int pagenumber;
-        public string[] results;
+        public string ImageToPdf(List<System.Drawing.Image> images)
+        {
+            string outputpath = Path.GetTempPath() + "\\pdffile" + DateTime.Now.ToString("_yyyy_MM_dd_HH_mm_ss") + ".pdf";
+
+            Document doc = null;
+            FileStream fs = null;
+            PdfWriter writer = null;
+
+            try
+            {
+                doc = new Document();
+                fs = new FileStream(outputpath, FileMode.Create, FileAccess.Write, FileShare.None);
+                writer = PdfWriter.GetInstance(doc, fs);
+
+                doc.Open();
+
+                foreach (var imgf in images)
+                {
+                    Image img = Image.GetInstance(imgf, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    img.ScaleToFit(PageSize.A4.Width, PageSize.A4.Height);
+                    img.SetAbsolutePosition((PageSize.A4.Width - img.ScaledWidth) / 2, (PageSize.A4.Height - img.ScaledHeight) / 2);
+
+                    doc.NewPage();
+                    writer.DirectContent.AddImage(img);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            finally
+            {
+                doc?.Dispose();
+                fs?.Dispose();
+                writer?.Dispose();
+            }
+            return outputpath;
+        }
+
+        public class SearchResult
+        {
+            public string filename;
+            public FileInfo Fileinfo => new FileInfo(filename);
+            public int pagenumber;
+            public string[] results;
+        }
     }
 }

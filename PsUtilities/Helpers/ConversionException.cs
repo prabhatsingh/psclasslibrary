@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-namespace XpsLibrary
+namespace PsUtilities.Helpers
 {
     [Serializable]
     public class ConversionException : Exception

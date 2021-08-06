@@ -59,20 +59,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClasses\ImageBase.cs" />
-    <Compile Include="ConsoleUtilities.cs" />
-    <Compile Include="FileUtilities.cs" />
+    <Compile Include="Utilities\ConsoleUtilities.cs" />
+    <Compile Include="Utilities\FileUtilities.cs" />
     <Compile Include="Helpers\FileDefs.cs" />
     <Compile Include="Helpers\GhostScriptHelper.cs" />
     <Compile Include="Helpers\ConversionException.cs" />
     <Compile Include="Helpers\ImageDefs.cs" />
-    <Compile Include="ImageUtilities.cs" />
+    <Compile Include="Utilities\ImageUtilities.cs" />
     <Compile Include="Helpers\Parameters.cs" />
     <Compile Include="BaseClasses\PdfBase.cs" />
-    <Compile Include="PdfUtilities.cs" />
+    <Compile Include="Utilities\PdfUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\Xps2Image.cs" />
-    <Compile Include="RtfUtilities.cs" />
-    <Compile Include="XpsUtilities.cs" />
+    <Compile Include="Utilities\RtfUtilities.cs" />
+    <Compile Include="Utilities\XpsUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
