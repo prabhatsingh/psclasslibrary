@@ -1,11 +1,12 @@
-﻿using PsUtilities.Helpers;
+﻿using PsUtilities.BaseClasses;
+using PsUtilities.Helpers;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Security.Cryptography;
 
 namespace PsUtilities.Utilities
 {
-    public class FileUtilities
+    public class FileUtilities : FileBase
     {
         public static List<string> filestodelete = new List<string>();
 
@@ -33,6 +34,27 @@ namespace PsUtilities.Utilities
 
             //file is not locked
             return false;
+        }
+
+        // The cryptographic service provider.
+        private static readonly SHA256 sha256 = SHA256.Create();
+        private static readonly MD5 md5 = MD5.Create();
+
+        // Compute the file's hash.
+        public static string GetHashSha256String(string filename)
+        {
+            using (FileStream stream = File.OpenRead(filename))
+            {
+                return sha256.ComputeHash(stream).ToPlainString();
+            }
+        }
+
+        public static string GetHashMd5String(string filename)
+        {
+            using (FileStream stream = File.OpenRead(filename))
+            {
+                return md5.ComputeHash(stream).ToPlainString();
+            }
         }
 
         public class FileDetails

@@ -58,7 +58,7 @@ namespace PsUtilities.Utilities
         }
 
         public string MergeToPdf(List<string> inputfiles, bool isTemp = false)
-        {
+        {            
             inputfiles.ForEach(pdffile =>
             {
                 if (IsXFA(pdffile))

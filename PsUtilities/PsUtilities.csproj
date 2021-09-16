@@ -58,6 +58,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseClasses\DataManipulate.cs" />
+    <Compile Include="BaseClasses\FileBase.cs" />
     <Compile Include="BaseClasses\ImageBase.cs" />
     <Compile Include="Utilities\ConsoleUtilities.cs" />
     <Compile Include="Utilities\FileUtilities.cs" />
